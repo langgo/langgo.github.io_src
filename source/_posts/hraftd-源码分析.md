@@ -41,10 +41,23 @@ store 由以下几部分组成
 下面是 `hraftd` 使用 `hashicorp/raft` 代码摘录。
 ```go
 // Instantiate the Raft systems.
-ra, err := raft.NewRaft(config, (*fsm)(s), logStore, stableStore, snapshots, transport)
-if err != nil {
-	return fmt.Errorf("new raft: %s", err)
-}
+	ra, err := raft.NewRaft(config, (*fsm)(s), logStore, stableStore, snapshots, transport)
+	if err != nil {
+		return fmt.Errorf("new raft: %s", err)
+	}
+	s.raft = ra
+
+	if enableSingle {
+		configuration := raft.Configuration{
+			Servers: []raft.Server{
+				{
+					ID:      config.LocalID,
+					Address: transport.LocalAddr(),
+				},
+			},
+		}
+		ra.BootstrapCluster(configuration)
+	}
 ```
 
 ### `raft.FSM`
