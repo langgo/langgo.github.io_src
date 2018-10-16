@@ -57,6 +57,7 @@ func Exec(ch <-chan int) error {
 // 每个函数都是同步函数
 // 遵循谁 send 谁 close
 // 谁使用谁清理
+// 通知-等待 模型
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
